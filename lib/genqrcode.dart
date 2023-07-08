@@ -268,10 +268,15 @@ TextEditingController textEditingController = TextEditingController();
 class _GenQrCodeState extends State<genqrcode> {
   FocusNode _textFieldFocusNode = FocusNode();
   bool isTextFieldVisible = false;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _focusNode.requestFocus();  }
 
   @override
   void dispose() {
-    _textFieldFocusNode.dispose();
+    _textFieldFocusNode.requestFocus();
     super.dispose();
   }
 
@@ -302,7 +307,7 @@ class _GenQrCodeState extends State<genqrcode> {
     );
   }
 }
-
+FocusNode _focusNode = FocusNode();
 class QRCodeGenerator extends StatelessWidget {
   final FocusNode textFieldFocusNode;
   final bool isTextFieldVisible;
@@ -316,6 +321,10 @@ class QRCodeGenerator extends StatelessWidget {
     required this.toggleTextFieldVisibility,
     required this.onTextChanged,
   }) : super(key: key);
+  @override
+  void initState() {
+    _focusNode.requestFocus();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -335,6 +344,7 @@ class QRCodeGenerator extends StatelessWidget {
             ),
           ),
         ),
+
         Visibility(
           visible: isTextFieldVisible,
           child: Align(
@@ -349,24 +359,27 @@ class QRCodeGenerator extends StatelessWidget {
                       height: 50,
                       child: Container(
                         alignment: Alignment.center,
-                        child: TextField(
-                          maxLines: 1,
-                          focusNode: textFieldFocusNode,
-                          onChanged: onTextChanged,
-                          decoration: InputDecoration(
-                            hintText: 'Enter text',
-                            filled: true,
-                            fillColor: Colors.grey[200],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.white,
+                        child: FocusScope(
+                          child: TextField(
+                            maxLines: 1,
+                            autofocus: true,
+                            focusNode: textFieldFocusNode,
+                            onChanged: onTextChanged,
+                            decoration: InputDecoration(
+                              hintText: 'Enter text',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
+                            onEditingComplete: () {
+                              textFieldFocusNode.unfocus();
+                            },
                           ),
-                          onEditingComplete: () {
-                            textFieldFocusNode.unfocus();
-                          },
                         ),
                       ),
                     ),
@@ -375,8 +388,15 @@ class QRCodeGenerator extends StatelessWidget {
                     height: 50,
                     child: GestureDetector(
                       onTap: () {
-                        toggleTextFieldVisibility();
-                        print("clicked");
+                        if(textEditingController.text==""|| textEditingController.text==null)
+                          {
+                            print("Enter Text");
+                          }
+                        else{
+                          toggleTextFieldVisibility();
+                          print("clicked");
+                        }
+
                       },
                       child: Container(
                         alignment: Alignment.center,
